@@ -87,7 +87,7 @@ export default function GroupPage() {
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="text-center py-12">
           <h2 className="text-xl font-semibold mb-2">Group Not Found</h2>
-          <p className="text-gray-600 mb-4">The group you're looking for doesn't exist.</p>
+          <p className="text-gray-600 mb-4">The group you&apos;re looking for doesn&apos;t exist.</p>
           <Button asChild>
             <Link href="/groups">Browse Groups</Link>
           </Button>

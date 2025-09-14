@@ -82,7 +82,7 @@ export function MessageInput({ conversation }: MessageInputProps) {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder={`Message ${conversation.otherParticipant?.name}...`}
+                placeholder={`Message ${conversation.participants.length > 0 ? conversation.participants[0].name : 'user'}...`}
                 className="min-h-[40px] max-h-[120px] resize-none"
                 disabled={sending}
                 maxLength={2000}

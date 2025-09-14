@@ -9,15 +9,14 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useEvent } from '@/hooks/useEvent';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { 
-  ArrowLeft, 
-  Calendar, 
-  MapPin, 
-  Users, 
-  Clock, 
+import {
+  ArrowLeft,
+  Calendar,
+  MapPin,
+  Users,
   Video,
   ExternalLink,
-  Settings 
+  Settings
 } from 'lucide-react';
 
 export default function EventPage() {
@@ -77,7 +76,7 @@ export default function EventPage() {
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="text-center py-12">
           <h2 className="text-xl font-semibold mb-2">Event Not Found</h2>
-          <p className="text-gray-600 mb-4">The event you're looking for doesn't exist.</p>
+          <p className="text-gray-600 mb-4">The event you&apos;re looking for doesn&apos;t exist.</p>
           <Button asChild>
             <Link href="/events">Browse Events</Link>
           </Button>
@@ -190,7 +189,7 @@ export default function EventPage() {
                         {' • '}
                         <span className="font-medium text-yellow-600">{event.maybeCount} maybe</span>
                         {' • '}
-                        <span className="text-gray-600">{event.notGoingCount} can't attend</span>
+                        <span className="text-gray-600">{event.notGoingCount} can&apos;t attend</span>
                       </p>
                       {event.maxAttendees && (
                         <p className="text-sm text-gray-600">
@@ -245,7 +244,7 @@ export default function EventPage() {
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <Badge className={getAttendanceColor(event.userAttendance.status)}>
-                      You're {event.userAttendance.status === 'not_going' ? 'not going' : event.userAttendance.status}
+                      You&apos;re {event.userAttendance.status === 'not_going' ? 'not going' : event.userAttendance.status}
                     </Badge>
                   </div>
                   
@@ -275,7 +274,7 @@ export default function EventPage() {
                           onClick={() => handleRSVP('not_going')}
                           disabled={loading}
                         >
-                          Can't Go
+                          Can&apos;t Go
                         </Button>
                         <Button
                           size="sm"
@@ -291,7 +290,7 @@ export default function EventPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <p className="text-gray-600">You haven't responded to this event yet.</p>
+                  <p className="text-gray-600">You haven&apos;t responded to this event yet.</p>
                   
                   {!isPast && (
                     <div className="flex gap-2">
@@ -316,7 +315,7 @@ export default function EventPage() {
                         onClick={() => handleRSVP('not_going')}
                         disabled={loading}
                       >
-                        Can't Go
+                        Can&apos;t Go
                       </Button>
                     </div>
                   )}

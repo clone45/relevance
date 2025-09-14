@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
         name: personalPost.targetUserId.name,
         email: personalPost.targetUserId.email,
       },
-      likes: personalPost.likes.map(like => like.toString()),
+      likes: personalPost.likes.map((like: any) => like.toString()),
       likeCount: personalPost.likeCount,
       commentCount: personalPost.commentCount,
       createdAt: personalPost.createdAt,
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Create personal post error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -136,7 +136,7 @@ export async function GET(request: NextRequest) {
         name: post.targetUserId.name,
         email: post.targetUserId.email,
       },
-      likes: post.likes.map(like => like.toString()),
+      likes: post.likes.map((like: any) => like.toString()),
       likeCount: post.likeCount,
       commentCount: post.commentCount,
       createdAt: post.createdAt,
@@ -156,7 +156,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get personal posts error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

@@ -33,12 +33,12 @@ export function MainNavigation() {
     router.push('/login');
   };
 
-  // Don't show navigation on auth pages
+  // Don&apos;t show navigation on auth pages
   if (pathname === '/login' || pathname === '/signup') {
     return null;
   }
 
-  // Don't show navigation if user is not authenticated
+  // Don&apos;t show navigation if user is not authenticated
   if (!user) {
     return null;
   }

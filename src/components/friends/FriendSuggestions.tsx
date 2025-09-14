@@ -27,10 +27,10 @@ export default function FriendSuggestions() {
         description: `Friend request sent to ${userName}`,
       });
       removeSuggestion(userId);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'An error occurred',
         variant: 'destructive',
       });
     } finally {

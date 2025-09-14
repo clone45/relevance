@@ -33,7 +33,7 @@ export function CreateEventForm({ groupId, groupName }: CreateEventFormProps) {
   const { createEvent, loading, error } = useEvents();
   const router = useRouter();
 
-  const handleChange = (name: string, value: string | boolean | number | Date) => {
+  const handleChange = (name: string, value: string | boolean | number | Date | undefined) => {
     setFormData(prev => ({ ...prev, [name]: value }));
     setLocalError(null);
   };

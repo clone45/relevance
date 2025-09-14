@@ -18,7 +18,7 @@ export function usePolling(
     immediate = false,
   } = options;
 
-  const intervalRef = useRef<NodeJS.Timeout>();
+  const intervalRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const callbackRef = useRef(callback);
 
   // Update callback ref when callback changes

@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
       total: friends.length,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get friends error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -150,7 +150,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Send friend request error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

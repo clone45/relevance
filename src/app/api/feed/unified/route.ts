@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
         name: post.group.name,
         description: post.group.description,
       },
-      likes: post.likes.map(like => like.toString()),
+      likes: post.likes.map((like: any) => like.toString()),
       likeCount: post.likeCount,
       commentCount: post.commentCount,
       createdAt: post.createdAt,
@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
         name: post.targetUserId.name,
         email: post.targetUserId.email,
       },
-      likes: post.likes.map(like => like.toString()),
+      likes: post.likes.map((like: any) => like.toString()),
       likeCount: post.likeCount,
       commentCount: post.commentCount,
       createdAt: post.createdAt,
@@ -149,7 +149,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get unified feed error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

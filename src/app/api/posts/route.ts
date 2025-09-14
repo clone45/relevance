@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10');
     const skip = (page - 1) * limit;
 
-    let query: any = {};
+    let query: Record<string, unknown> = {};
     
     if (groupId) {
       query.groupId = groupId;
@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
         id: post.groupId._id.toString(),
         name: post.groupId.name,
       },
-      likes: post.likes.map(id => id.toString()),
+      likes: post.likes.map((id: any) => id.toString()),
       likeCount: post.likeCount,
       commentCount: post.commentCount,
       createdAt: post.createdAt,
@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
       totalPages: Math.ceil(total / limit),
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get posts error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
         id: post.groupId._id.toString(),
         name: post.groupId.name,
       },
-      likes: post.likes.map(id => id.toString()),
+      likes: post.likes.map((id: any) => id.toString()),
       likeCount: post.likeCount,
       commentCount: post.commentCount,
       createdAt: post.createdAt,
@@ -171,11 +171,11 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Create post error:', error);
     
-    if (error.errors) {
-      const validationErrors = Object.values(error.errors).map((err: any) => err.message);
+    if (error && typeof error === 'object' && 'errors' in error && error.errors) {
+      const validationErrors = Object.values(error.errors as Record<string, { message: string }>).map((err) => err.message);
       return NextResponse.json(
         { error: validationErrors.join(', ') },
         { status: 400 }

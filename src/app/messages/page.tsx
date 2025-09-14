@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { usePolling } from '@/hooks/usePolling';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -11,7 +11,7 @@ import { NewMessageModal } from '@/components/messages/NewMessageModal';
 import { Conversation } from '@/types/message';
 import { useMessages } from '@/hooks/useMessages';
 
-export default function MessagesPage() {
+function MessagesContent() {
   const { user, loading: authLoading } = useAuthContext();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -137,5 +137,24 @@ export default function MessagesPage() {
         onConversationCreated={handleNewConversationCreated}
       />
     </div>
+  );
+}
+
+export default function MessagesPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-8 max-w-6xl h-[calc(100vh-2rem)]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+          <div className="lg:col-span-1">
+            <div className="h-full bg-gray-200 rounded-lg animate-pulse"></div>
+          </div>
+          <div className="lg:col-span-2">
+            <div className="h-full bg-gray-200 rounded-lg animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+    }>
+      <MessagesContent />
+    </Suspense>
   );
 }

@@ -7,7 +7,7 @@ import { authenticateUser } from '@/middleware/auth';
 // POST /api/events/[id]/attendance - Update attendance status
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userAuth = authenticateUser(request);
@@ -21,7 +21,7 @@ export async function POST(
 
     await connectDB();
     
-    const event = await Event.findById(params.id);
+    const event = await Event.findById((await params).id);
     if (!event) {
       return NextResponse.json(
         { error: 'Event not found' },
@@ -49,7 +49,7 @@ export async function POST(
 
     // Find existing attendance or create new one
     let attendance = await EventAttendance.findOne({
-      eventId: params.id,
+      eventId: (await params).id,
       userId: userAuth.userId,
     });
 
@@ -60,7 +60,7 @@ export async function POST(
       await attendance.save();
     } else {
       attendance = new EventAttendance({
-        eventId: params.id,
+        eventId: (await params).id,
         userId: userAuth.userId,
         status,
       });
@@ -84,11 +84,11 @@ export async function POST(
 
     // Update total attendee count (going + maybe)
     const newAttendeeCount = await EventAttendance.countDocuments({
-      eventId: params.id,
+      eventId: (await params).id,
       status: { $in: ['going', 'maybe'] },
     });
 
-    await Event.findByIdAndUpdate(params.id, {
+    await Event.findByIdAndUpdate((await params).id, {
       ...attendanceUpdates,
       attendeeCount: newAttendeeCount,
     });
@@ -98,7 +98,7 @@ export async function POST(
       status,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Update attendance error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -110,7 +110,7 @@ export async function POST(
 // DELETE /api/events/[id]/attendance - Remove attendance status
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userAuth = authenticateUser(request);
@@ -125,7 +125,7 @@ export async function DELETE(
     await connectDB();
     
     const attendance = await EventAttendance.findOne({
-      eventId: params.id,
+      eventId: (await params).id,
       userId: userAuth.userId,
     });
 
@@ -150,11 +150,11 @@ export async function DELETE(
 
     // Update total attendee count
     const newAttendeeCount = await EventAttendance.countDocuments({
-      eventId: params.id,
+      eventId: (await params).id,
       status: { $in: ['going', 'maybe'] },
     });
 
-    await Event.findByIdAndUpdate(params.id, {
+    await Event.findByIdAndUpdate((await params).id, {
       ...attendanceUpdates,
       attendeeCount: newAttendeeCount,
     });
@@ -163,7 +163,7 @@ export async function DELETE(
       message: 'Attendance removed successfully',
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Remove attendance error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

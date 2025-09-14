@@ -7,7 +7,7 @@ import { authenticateUser } from '@/middleware/auth';
 // GET /api/posts/[id]/comments - Get comments for a post
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
@@ -19,7 +19,7 @@ export async function GET(
 
     // Get top-level comments (no parent)
     const comments = await Comment.find({ 
-      postId: params.id,
+      postId: (await params).id,
       parentCommentId: null,
     })
       .populate('author', 'name email')
@@ -28,7 +28,7 @@ export async function GET(
       .limit(limit);
 
     const total = await Comment.countDocuments({ 
-      postId: params.id,
+      postId: (await params).id,
       parentCommentId: null,
     });
 
@@ -43,7 +43,7 @@ export async function GET(
       },
       postId: comment.postId.toString(),
       parentCommentId: comment.parentCommentId?.toString() || null,
-      likes: comment.likes.map(id => id.toString()),
+      likes: comment.likes.map((id: any) => id.toString()),
       likeCount: comment.likeCount,
       createdAt: comment.createdAt,
       updatedAt: comment.updatedAt,
@@ -57,7 +57,7 @@ export async function GET(
       totalPages: Math.ceil(total / limit),
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get comments error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -69,7 +69,7 @@ export async function GET(
 // POST /api/posts/[id]/comments - Create a new comment
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userAuth = authenticateUser(request);
@@ -94,7 +94,7 @@ export async function POST(
     }
 
     // Check if post exists
-    const post = await Post.findById(params.id);
+    const post = await Post.findById((await params).id);
     if (!post) {
       return NextResponse.json(
         { error: 'Post not found' },
@@ -105,7 +105,7 @@ export async function POST(
     // If it's a reply, check if parent comment exists
     if (parentCommentId) {
       const parentComment = await Comment.findById(parentCommentId);
-      if (!parentComment || parentComment.postId.toString() !== params.id) {
+      if (!parentComment || parentComment.postId.toString() !== (await params).id) {
         return NextResponse.json(
           { error: 'Parent comment not found' },
           { status: 404 }
@@ -116,14 +116,14 @@ export async function POST(
     const comment = new Comment({
       content: content.trim(),
       author: userAuth.userId,
-      postId: params.id,
+      postId: (await params).id,
       parentCommentId: parentCommentId || null,
     });
 
     await comment.save();
 
     // Update post comment count
-    await Post.findByIdAndUpdate(params.id, {
+    await Post.findByIdAndUpdate((await params).id, {
       $inc: { commentCount: 1 }
     });
 
@@ -140,7 +140,7 @@ export async function POST(
       },
       postId: comment.postId.toString(),
       parentCommentId: comment.parentCommentId?.toString() || null,
-      likes: comment.likes.map(id => id.toString()),
+      likes: comment.likes.map((id: any) => id.toString()),
       likeCount: comment.likeCount,
       createdAt: comment.createdAt,
       updatedAt: comment.updatedAt,
@@ -152,11 +152,11 @@ export async function POST(
       { status: 201 }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Create comment error:', error);
     
-    if (error.errors) {
-      const validationErrors = Object.values(error.errors).map((err: any) => err.message);
+    if (error && typeof error === 'object' && 'errors' in error && error.errors) {
+      const validationErrors = Object.values(error.errors as Record<string, { message: string }>).map((err) => err.message);
       return NextResponse.json(
         { error: validationErrors.join(', ') },
         { status: 400 }

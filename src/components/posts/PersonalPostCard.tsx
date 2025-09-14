@@ -30,10 +30,10 @@ export function PersonalPostCard({ post, onLike, currentUserId }: PersonalPostCa
     try {
       setIsLiking(true);
       await onLike(post.id);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'An error occurred',
         variant: 'destructive',
       });
     } finally {
@@ -95,9 +95,9 @@ export function PersonalPostCard({ post, onLike, currentUserId }: PersonalPostCa
               size="sm"
               onClick={handleLike}
               disabled={isLiking}
-              className={`h-8 ${post.liked ? 'text-red-500 hover:text-red-600' : 'text-muted-foreground hover:text-red-500'}`}
+              className={`h-8 ${currentUserId && post.likes.includes(currentUserId) ? 'text-red-500 hover:text-red-600' : 'text-muted-foreground hover:text-red-500'}`}
             >
-              <Heart className={`h-4 w-4 mr-1 ${post.liked ? 'fill-current' : ''}`} />
+              <Heart className={`h-4 w-4 mr-1 ${currentUserId && post.likes.includes(currentUserId) ? 'fill-current' : ''}`} />
               {post.likeCount}
             </Button>
             

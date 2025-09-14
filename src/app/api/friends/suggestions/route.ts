@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
     // Get unique users from mutual groups
     const mutualGroupUsers = mutualGroupMembers.reduce((acc, member) => {
       const userId = member.userId._id.toString();
-      if (!acc.find(u => u.id === userId)) {
+      if (!acc.find((u: any) => u.id === userId)) {
         acc.push({
           id: userId,
           name: member.userId.name,
@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
           ? friendship.recipient._id.toString()
           : friendship.requester._id.toString();
 
-        if (!excludeIds.includes(friendOfFriendId) && !acc.find(u => u.id === friendOfFriendId)) {
+        if (!excludeIds.includes(friendOfFriendId) && !acc.find((u: any) => u.id === friendOfFriendId)) {
           const user = friendIds.includes(friendship.requester._id.toString())
             ? friendship.recipient
             : friendship.requester;
@@ -155,7 +155,7 @@ export async function GET(request: NextRequest) {
       total: transformedSuggestions.length,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get friend suggestions error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

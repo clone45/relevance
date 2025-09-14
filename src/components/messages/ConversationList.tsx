@@ -141,8 +141,8 @@ export function ConversationList({
                   <div className="relative">
                     <Avatar className="h-10 w-10">
                       <AvatarFallback className="bg-gray-500 text-white text-sm">
-                        {conversation.otherParticipant ? 
-                          getInitials(conversation.otherParticipant.name) : 
+                        {conversation.participants.length > 0 ?
+                          getInitials(conversation.participants[0].name) :
                           '?'
                         }
                       </AvatarFallback>
@@ -157,7 +157,7 @@ export function ConversationList({
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start">
                       <p className="font-medium text-sm truncate">
-                        {conversation.otherParticipant?.name || 'Unknown User'}
+                        {conversation.participants.length > 0 ? conversation.participants[0].name : 'Unknown User'}
                       </p>
                       <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
                         {formatTime(conversation.lastActivity)}

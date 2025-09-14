@@ -21,7 +21,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     auth.getCurrentUser();
-  }, [auth.getCurrentUser]);
+  }, [auth]);
 
   return (
     <AuthContext.Provider value={auth}>

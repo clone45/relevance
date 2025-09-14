@@ -47,7 +47,7 @@ export function useAuth(): UseAuthReturn {
       const authData = data as AuthResponse;
       setUser(authData.user);
       return true;
-    } catch (err) {
+    } catch (_err) {
       setError('Network error. Please try again.');
       return false;
     } finally {
@@ -78,7 +78,7 @@ export function useAuth(): UseAuthReturn {
       const authData = data as AuthResponse;
       setUser(authData.user);
       return true;
-    } catch (err) {
+    } catch (_err) {
       setError('Network error. Please try again.');
       return false;
     } finally {
@@ -94,8 +94,8 @@ export function useAuth(): UseAuthReturn {
         method: 'POST',
       });
       setUser(null);
-    } catch (err) {
-      console.error('Logout error:', err);
+    } catch (_err) {
+      console.error('Logout error:', _err);
     } finally {
       setLoading(false);
     }
@@ -113,7 +113,7 @@ export function useAuth(): UseAuthReturn {
       } else {
         setUser(null);
       }
-    } catch (err) {
+    } catch (_err) {
       setUser(null);
     } finally {
       setLoading(false);

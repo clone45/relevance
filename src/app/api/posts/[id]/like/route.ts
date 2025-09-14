@@ -6,7 +6,7 @@ import { authenticateUser } from '@/middleware/auth';
 // POST /api/posts/[id]/like - Like a post
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userAuth = authenticateUser(request);
@@ -20,7 +20,7 @@ export async function POST(
 
     await connectDB();
     
-    const post = await Post.findById(params.id);
+    const post = await Post.findById((await params).id);
     if (!post) {
       return NextResponse.json(
         { error: 'Post not found' },
@@ -46,7 +46,7 @@ export async function POST(
       likeCount: post.likeCount,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Like post error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -58,7 +58,7 @@ export async function POST(
 // DELETE /api/posts/[id]/like - Unlike a post
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userAuth = authenticateUser(request);
@@ -72,7 +72,7 @@ export async function DELETE(
 
     await connectDB();
     
-    const post = await Post.findById(params.id);
+    const post = await Post.findById((await params).id);
     if (!post) {
       return NextResponse.json(
         { error: 'Post not found' },
@@ -90,7 +90,7 @@ export async function DELETE(
       );
     }
 
-    post.likes = post.likes.filter(id => id.toString() !== userId);
+    post.likes = post.likes.filter((id: any) => id.toString() !== userId);
     await post.save();
 
     return NextResponse.json({
@@ -98,7 +98,7 @@ export async function DELETE(
       likeCount: post.likeCount,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Unlike post error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

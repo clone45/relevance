@@ -7,12 +7,12 @@ import { authenticateUser } from '@/middleware/auth';
 // GET /api/groups/[id] - Get group details
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
     
-    const group = await Group.findById(params.id)
+    const group = await Group.findById((await params).id)
       .populate('createdBy', 'name email');
 
     if (!group) {
@@ -35,7 +35,7 @@ export async function GET(
     let userMembership = null;
     if (userAuth) {
       userMembership = await GroupMembership.findOne({
-        groupId: params.id,
+        groupId: (await params).id,
         userId: userAuth.userId,
         isActive: true,
       });
@@ -57,7 +57,7 @@ export async function GET(
       } : null,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get group error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -69,7 +69,7 @@ export async function GET(
 // PUT /api/groups/[id] - Update group (admin/owner only)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userAuth = authenticateUser(request);
@@ -85,7 +85,7 @@ export async function PUT(
     
     // Check if user has permission to update group
     const membership = await GroupMembership.findOne({
-      groupId: params.id,
+      groupId: (await params).id,
       userId: userAuth.userId,
       role: { $in: ['owner', 'admin'] },
       isActive: true,
@@ -102,7 +102,7 @@ export async function PUT(
     const { name, description, category, isPrivate, location, tags, rules } = body;
 
     const group = await Group.findByIdAndUpdate(
-      params.id,
+      (await params).id,
       {
         ...(name && { name }),
         ...(description && { description }),
@@ -127,11 +127,11 @@ export async function PUT(
       group,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Update group error:', error);
     
-    if (error.errors) {
-      const validationErrors = Object.values(error.errors).map((err: any) => err.message);
+    if (error && typeof error === 'object' && 'errors' in error && error.errors) {
+      const validationErrors = Object.values(error.errors as Record<string, { message: string }>).map((err) => err.message);
       return NextResponse.json(
         { error: validationErrors.join(', ') },
         { status: 400 }
@@ -148,7 +148,7 @@ export async function PUT(
 // DELETE /api/groups/[id] - Delete group (owner only)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userAuth = authenticateUser(request);
@@ -164,7 +164,7 @@ export async function DELETE(
     
     // Check if user is the owner
     const membership = await GroupMembership.findOne({
-      groupId: params.id,
+      groupId: (await params).id,
       userId: userAuth.userId,
       role: 'owner',
       isActive: true,
@@ -178,10 +178,10 @@ export async function DELETE(
     }
 
     // Delete all memberships first
-    await GroupMembership.deleteMany({ groupId: params.id });
+    await GroupMembership.deleteMany({ groupId: (await params).id });
     
     // Delete the group
-    const group = await Group.findByIdAndDelete(params.id);
+    const group = await Group.findByIdAndDelete((await params).id);
 
     if (!group) {
       return NextResponse.json(
@@ -194,7 +194,7 @@ export async function DELETE(
       message: 'Group deleted successfully',
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Delete group error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

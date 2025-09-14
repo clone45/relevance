@@ -85,7 +85,7 @@ export function useEvents(): UseEventsReturn {
       const result: EventListResponse & { totalPages: number; page: number } = await response.json();
 
       if (!response.ok) {
-        setError(result.error || 'Failed to fetch events');
+        setError('Failed to fetch events');
         return;
       }
 

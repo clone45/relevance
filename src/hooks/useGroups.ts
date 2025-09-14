@@ -81,7 +81,7 @@ export function useGroups(): UseGroupsReturn {
       const result: GroupListResponse & { totalPages: number; page: number } = await response.json();
 
       if (!response.ok) {
-        setError(result.error || 'Failed to fetch groups');
+        setError("Failed to fetch groups");
         return;
       }
 

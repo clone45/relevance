@@ -91,11 +91,6 @@ export function NewMessageModal({ open, onClose, onConversationCreated }: NewMes
               email: selectedUser.email,
             }
           ],
-          otherParticipant: {
-            id: selectedUser.id,
-            name: selectedUser.name,
-            email: selectedUser.email,
-          },
           lastMessage: {
             id: result.id,
             content: result.content,
@@ -170,7 +165,7 @@ export function NewMessageModal({ open, onClose, onConversationCreated }: NewMes
 
               {!searchLoading && searchQuery.length >= 2 && searchResults.length === 0 && (
                 <div className="text-center py-4 text-gray-500">
-                  <p className="text-sm">No users found for "{searchQuery}"</p>
+                  <p className="text-sm">No users found for &quot;{searchQuery}&quot;</p>
                 </div>
               )}
 

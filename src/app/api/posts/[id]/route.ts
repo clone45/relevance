@@ -6,12 +6,12 @@ import { authenticateUser } from '@/middleware/auth';
 // GET /api/posts/[id] - Get single post
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
     
-    const post = await Post.findById(params.id)
+    const post = await Post.findById((await params).id)
       .populate('author', 'name email')
       .populate('groupId', 'name');
 
@@ -35,7 +35,7 @@ export async function GET(
         id: post.groupId._id.toString(),
         name: post.groupId.name,
       },
-      likes: post.likes.map(id => id.toString()),
+      likes: post.likes.map((id: any) => id.toString()),
       likeCount: post.likeCount,
       commentCount: post.commentCount,
       createdAt: post.createdAt,
@@ -45,7 +45,7 @@ export async function GET(
 
     return NextResponse.json({ post: transformedPost });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get post error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -57,7 +57,7 @@ export async function GET(
 // PUT /api/posts/[id] - Update post (author only)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userAuth = authenticateUser(request);
@@ -71,7 +71,7 @@ export async function PUT(
 
     await connectDB();
     
-    const post = await Post.findById(params.id);
+    const post = await Post.findById((await params).id);
     if (!post) {
       return NextResponse.json(
         { error: 'Post not found' },
@@ -117,7 +117,7 @@ export async function PUT(
         id: post.groupId._id.toString(),
         name: post.groupId.name,
       },
-      likes: post.likes.map(id => id.toString()),
+      likes: post.likes.map((id: any) => id.toString()),
       likeCount: post.likeCount,
       commentCount: post.commentCount,
       createdAt: post.createdAt,
@@ -130,11 +130,11 @@ export async function PUT(
       post: transformedPost,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Update post error:', error);
     
-    if (error.errors) {
-      const validationErrors = Object.values(error.errors).map((err: any) => err.message);
+    if (error && typeof error === 'object' && 'errors' in error && error.errors) {
+      const validationErrors = Object.values(error.errors as Record<string, { message: string }>).map((err) => err.message);
       return NextResponse.json(
         { error: validationErrors.join(', ') },
         { status: 400 }
@@ -151,7 +151,7 @@ export async function PUT(
 // DELETE /api/posts/[id] - Delete post (author only)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userAuth = authenticateUser(request);
@@ -165,7 +165,7 @@ export async function DELETE(
 
     await connectDB();
     
-    const post = await Post.findById(params.id);
+    const post = await Post.findById((await params).id);
     if (!post) {
       return NextResponse.json(
         { error: 'Post not found' },
@@ -181,13 +181,13 @@ export async function DELETE(
       );
     }
 
-    await Post.findByIdAndDelete(params.id);
+    await Post.findByIdAndDelete((await params).id);
 
     return NextResponse.json({
       message: 'Post deleted successfully',
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Delete post error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

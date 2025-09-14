@@ -16,7 +16,7 @@ export async function POST() {
 
     return response;
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Logout error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

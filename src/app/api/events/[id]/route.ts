@@ -7,12 +7,12 @@ import { authenticateUser } from '@/middleware/auth';
 // GET /api/events/[id] - Get event details
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
     
-    const event = await Event.findById(params.id)
+    const event = await Event.findById((await params).id)
       .populate('organizer', 'name email')
       .populate('groupId', 'name');
 
@@ -28,7 +28,7 @@ export async function GET(
     const userAuth = authenticateUser(request);
     if (userAuth) {
       const attendance = await EventAttendance.findOne({
-        eventId: params.id,
+        eventId: (await params).id,
         userId: userAuth.userId,
       });
 
@@ -72,7 +72,7 @@ export async function GET(
       userAttendance,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get event error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -84,7 +84,7 @@ export async function GET(
 // PUT /api/events/[id] - Update event (organizer only)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userAuth = authenticateUser(request);
@@ -98,7 +98,7 @@ export async function PUT(
 
     await connectDB();
     
-    const event = await Event.findById(params.id);
+    const event = await Event.findById((await params).id);
     if (!event) {
       return NextResponse.json(
         { error: 'Event not found' },
@@ -174,11 +174,11 @@ export async function PUT(
       event: transformedEvent,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Update event error:', error);
     
-    if (error.errors) {
-      const validationErrors = Object.values(error.errors).map((err: any) => err.message);
+    if (error && typeof error === 'object' && 'errors' in error && error.errors) {
+      const validationErrors = Object.values(error.errors as Record<string, { message: string }>).map((err) => err.message);
       return NextResponse.json(
         { error: validationErrors.join(', ') },
         { status: 400 }
@@ -195,7 +195,7 @@ export async function PUT(
 // DELETE /api/events/[id] - Delete event (organizer only)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userAuth = authenticateUser(request);
@@ -209,7 +209,7 @@ export async function DELETE(
 
     await connectDB();
     
-    const event = await Event.findById(params.id);
+    const event = await Event.findById((await params).id);
     if (!event) {
       return NextResponse.json(
         { error: 'Event not found' },
@@ -226,16 +226,16 @@ export async function DELETE(
     }
 
     // Delete all attendance records first
-    await EventAttendance.deleteMany({ eventId: params.id });
+    await EventAttendance.deleteMany({ eventId: (await params).id });
     
     // Delete the event
-    await Event.findByIdAndDelete(params.id);
+    await Event.findByIdAndDelete((await params).id);
 
     return NextResponse.json({
       message: 'Event deleted successfully',
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Delete event error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

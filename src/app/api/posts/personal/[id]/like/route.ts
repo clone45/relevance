@@ -5,7 +5,7 @@ import { authenticateUser } from '@/middleware/auth';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userAuth = authenticateUser(request);
@@ -19,7 +19,7 @@ export async function POST(
 
     await connectDB();
     
-    const post = await PersonalPost.findById(params.id);
+    const post = await PersonalPost.findById((await params).id);
     if (!post) {
       return NextResponse.json(
         { error: 'Post not found' },
@@ -31,7 +31,7 @@ export async function POST(
     const hasLiked = post.likes.includes(userId);
 
     if (hasLiked) {
-      post.likes = post.likes.filter(like => like.toString() !== userId);
+      post.likes = post.likes.filter((like: any) => like.toString() !== userId);
     } else {
       post.likes.push(userId);
     }
@@ -44,7 +44,7 @@ export async function POST(
       likeCount: post.likeCount,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Like personal post error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

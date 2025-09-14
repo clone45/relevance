@@ -7,7 +7,7 @@ import { authenticateUser } from '@/middleware/auth';
 // POST /api/conversations/[id]/read - Mark messages as read
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userAuth = authenticateUser(request);
@@ -22,7 +22,7 @@ export async function POST(
     await connectDB();
     
     // Check if user is part of this conversation
-    const conversation = await Conversation.findById(params.id);
+    const conversation = await Conversation.findById((await params).id);
     if (!conversation) {
       return NextResponse.json(
         { error: 'Conversation not found' },
@@ -40,7 +40,7 @@ export async function POST(
     // Mark all unread messages in this conversation as read by current user
     await Message.updateMany(
       {
-        conversationId: params.id,
+        conversationId: (await params).id,
         readBy: { $ne: userAuth.userId },
         senderId: { $ne: userAuth.userId }, // Don't mark own messages
       },
@@ -53,7 +53,7 @@ export async function POST(
       message: 'Messages marked as read',
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Mark as read error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

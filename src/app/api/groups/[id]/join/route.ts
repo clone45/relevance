@@ -7,7 +7,7 @@ import { authenticateUser } from '@/middleware/auth';
 // POST /api/groups/[id]/join - Join a group
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userAuth = authenticateUser(request);
@@ -21,7 +21,7 @@ export async function POST(
 
     await connectDB();
     
-    const group = await Group.findById(params.id);
+    const group = await Group.findById((await params).id);
     if (!group) {
       return NextResponse.json(
         { error: 'Group not found' },
@@ -31,7 +31,7 @@ export async function POST(
 
     // Check if user is already a member
     const existingMembership = await GroupMembership.findOne({
-      groupId: params.id,
+      groupId: (await params).id,
       userId: userAuth.userId,
     });
 
@@ -50,7 +50,7 @@ export async function POST(
     } else {
       // Create new membership
       const membership = new GroupMembership({
-        groupId: params.id,
+        groupId: (await params).id,
         userId: userAuth.userId,
         role: 'member',
       });
@@ -58,7 +58,7 @@ export async function POST(
     }
 
     // Update member count
-    await Group.findByIdAndUpdate(params.id, {
+    await Group.findByIdAndUpdate((await params).id, {
       $inc: { memberCount: 1 }
     });
 
@@ -66,7 +66,7 @@ export async function POST(
       message: 'Successfully joined the group',
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Join group error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -78,7 +78,7 @@ export async function POST(
 // DELETE /api/groups/[id]/join - Leave a group
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userAuth = authenticateUser(request);
@@ -93,7 +93,7 @@ export async function DELETE(
     await connectDB();
     
     const membership = await GroupMembership.findOne({
-      groupId: params.id,
+      groupId: (await params).id,
       userId: userAuth.userId,
       isActive: true,
     });
@@ -118,7 +118,7 @@ export async function DELETE(
     await membership.save();
 
     // Update member count
-    await Group.findByIdAndUpdate(params.id, {
+    await Group.findByIdAndUpdate((await params).id, {
       $inc: { memberCount: -1 }
     });
 
@@ -126,7 +126,7 @@ export async function DELETE(
       message: 'Successfully left the group',
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Leave group error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

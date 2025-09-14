@@ -67,10 +67,10 @@ export function CreatePersonalPostForm({ targetUser, currentUser, onPostCreated 
       if (onPostCreated) {
         onPostCreated();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'An error occurred',
         variant: 'destructive',
       });
     } finally {

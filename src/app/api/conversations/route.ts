@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
       total: transformedConversations.length,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get conversations error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Create conversation error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

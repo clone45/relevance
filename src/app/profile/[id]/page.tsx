@@ -77,10 +77,10 @@ export default function ProfilePage({ params }: PageProps) {
         title: 'Friend request sent',
         description: `Friend request sent to ${profileUser.name}`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'An error occurred',
         variant: 'destructive',
       });
     } finally {

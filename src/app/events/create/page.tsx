@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { CreateEventForm } from '@/components/events/CreateEventForm';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { ArrowLeft } from 'lucide-react';
 
-export default function CreateEventPage() {
+function CreateEventContent() {
   const { user, loading: authLoading } = useAuthContext();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -92,5 +92,20 @@ export default function CreateEventPage() {
         groupName={groupInfo.name} 
       />
     </div>
+  );
+}
+
+export default function CreateEventPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="animate-pulse space-y-6">
+          <div className="h-8 bg-gray-200 rounded w-64"></div>
+          <div className="h-96 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    }>
+      <CreateEventContent />
+    </Suspense>
   );
 }

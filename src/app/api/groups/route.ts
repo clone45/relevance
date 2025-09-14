@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build query
-    let query: any = {};
+    let query: Record<string, unknown> = {};
     
     if (category && category !== 'all') {
       query.category = category;
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
       totalPages: Math.ceil(total / limit),
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get groups error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -120,11 +120,11 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Create group error:', error);
     
-    if (error.errors) {
-      const validationErrors = Object.values(error.errors).map((err: any) => err.message);
+    if (error && typeof error === 'object' && 'errors' in error && error.errors) {
+      const validationErrors = Object.values(error.errors as Record<string, { message: string }>).map((err) => err.message);
       return NextResponse.json(
         { error: validationErrors.join(', ') },
         { status: 400 }

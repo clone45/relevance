@@ -6,7 +6,7 @@ import { authenticateUser } from '@/middleware/auth';
 // PUT /api/friends/requests/[id] - Accept or decline friend request
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userAuth = authenticateUser(request);
@@ -30,7 +30,7 @@ export async function PUT(
       );
     }
 
-    const friendship = await Friendship.findById(params.id);
+    const friendship = await Friendship.findById((await params).id);
     if (!friendship) {
       return NextResponse.json(
         { error: 'Friend request not found' },
@@ -82,7 +82,7 @@ export async function PUT(
       friendship: transformedFriendship,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Respond to friend request error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -94,7 +94,7 @@ export async function PUT(
 // DELETE /api/friends/requests/[id] - Cancel friend request (requester) or remove friendship
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userAuth = authenticateUser(request);
@@ -108,7 +108,7 @@ export async function DELETE(
 
     await connectDB();
     
-    const friendship = await Friendship.findById(params.id);
+    const friendship = await Friendship.findById((await params).id);
     if (!friendship) {
       return NextResponse.json(
         { error: 'Friendship not found' },
@@ -136,13 +136,13 @@ export async function DELETE(
         );
       }
       // Delete the pending request
-      await Friendship.findByIdAndDelete(params.id);
+      await Friendship.findByIdAndDelete((await params).id);
       return NextResponse.json({
         message: 'Friend request cancelled successfully',
       });
     } else if (friendship.status === 'accepted') {
       // Either friend can end the friendship
-      await Friendship.findByIdAndDelete(params.id);
+      await Friendship.findByIdAndDelete((await params).id);
       return NextResponse.json({
         message: 'Friendship ended successfully',
       });
@@ -153,7 +153,7 @@ export async function DELETE(
       );
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Delete friendship error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

@@ -80,7 +80,7 @@ export function usePosts(): UsePostsReturn {
       const result: PostListResponse & { totalPages: number; page: number } = await response.json();
 
       if (!response.ok) {
-        setError(result.error || 'Failed to fetch posts');
+        setError("Failed to fetch posts");
         return;
       }
 

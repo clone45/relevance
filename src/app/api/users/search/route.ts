@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
       total: transformedUsers.length,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Search users error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

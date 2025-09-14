@@ -22,10 +22,10 @@ export default function FriendsList() {
         title: 'Friend removed',
         description: `You are no longer friends with ${friendName}`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'An error occurred',
         variant: 'destructive',
       });
     } finally {
@@ -58,7 +58,7 @@ export default function FriendsList() {
       </CardHeader>
       <CardContent>
         {friends.length === 0 ? (
-          <p className="text-muted-foreground">You don't have any friends yet. Start by sending friend requests!</p>
+          <p className="text-muted-foreground">You don&apos;t have any friends yet. Start by sending friend requests!</p>
         ) : (
           <div className="space-y-4">
             {friends.map((friend) => (

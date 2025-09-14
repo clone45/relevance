@@ -5,7 +5,7 @@ import { authenticateUser } from '@/middleware/auth';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userAuth = authenticateUser(request);
@@ -19,7 +19,7 @@ export async function GET(
 
     await connectDB();
     
-    const user = await User.findById(params.id).select('name email createdAt');
+    const user = await User.findById((await params).id).select('name email createdAt');
     
     if (!user) {
       return NextResponse.json(
@@ -39,7 +39,7 @@ export async function GET(
       user: transformedUser,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get user error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

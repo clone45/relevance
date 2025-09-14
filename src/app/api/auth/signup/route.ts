@@ -61,18 +61,18 @@ export async function POST(request: NextRequest) {
 
     return response;
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Signup error:', error);
-    
-    if (error.code === 11000) {
+
+    if (error && typeof error === 'object' && 'code' in error && error.code === 11000) {
       return NextResponse.json(
         { error: 'User already exists with this email' },
         { status: 400 }
       );
     }
-    
-    if (error.errors) {
-      const validationErrors = Object.values(error.errors).map((err: any) => err.message);
+
+    if (error && typeof error === 'object' && 'errors' in error && error.errors) {
+      const validationErrors = Object.values(error.errors as Record<string, { message: string }>).map((err) => err.message);
       return NextResponse.json(
         { error: validationErrors.join(', ') },
         { status: 400 }

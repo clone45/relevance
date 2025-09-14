@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type') || 'incoming'; // incoming, outgoing, or both
 
-    let query: any = { status: 'pending' };
+    let query: Record<string, unknown> = { status: 'pending' };
 
     if (type === 'incoming') {
       query.recipient = userAuth.userId;
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
       total: requests.length,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get friend requests error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

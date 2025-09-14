@@ -7,7 +7,7 @@ import { authenticateUser } from '@/middleware/auth';
 // GET /api/conversations/[id]/messages - Get messages in a conversation
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userAuth = authenticateUser(request);
@@ -22,7 +22,7 @@ export async function GET(
     await connectDB();
     
     // Check if user is part of this conversation
-    const conversation = await Conversation.findById(params.id);
+    const conversation = await Conversation.findById((await params).id);
     if (!conversation) {
       return NextResponse.json(
         { error: 'Conversation not found' },
@@ -43,7 +43,7 @@ export async function GET(
     const skip = (page - 1) * limit;
 
     const messages = await Message.find({ 
-      conversationId: params.id 
+      conversationId: (await params).id 
     })
       .populate('senderId', 'name email')
       .sort({ createdAt: -1 }) // Most recent first
@@ -51,7 +51,7 @@ export async function GET(
       .limit(limit);
 
     const total = await Message.countDocuments({ 
-      conversationId: params.id 
+      conversationId: (await params).id 
     });
 
     // Transform messages
@@ -65,7 +65,7 @@ export async function GET(
         email: message.senderId.email,
       },
       conversationId: message.conversationId.toString(),
-      readBy: message.readBy.map(id => id.toString()),
+      readBy: message.readBy.map((id: any) => id.toString()),
       createdAt: message.createdAt,
       updatedAt: message.updatedAt,
       isEdited: message.isEdited,
@@ -81,7 +81,7 @@ export async function GET(
       totalPages: Math.ceil(total / limit),
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get messages error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -93,7 +93,7 @@ export async function GET(
 // POST /api/conversations/[id]/messages - Send a message
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userAuth = authenticateUser(request);
@@ -108,7 +108,7 @@ export async function POST(
     await connectDB();
     
     // Check if user is part of this conversation
-    const conversation = await Conversation.findById(params.id);
+    const conversation = await Conversation.findById((await params).id);
     if (!conversation) {
       return NextResponse.json(
         { error: 'Conversation not found' },
@@ -137,7 +137,7 @@ export async function POST(
     const message = new Message({
       content: content.trim(),
       senderId: userAuth.userId,
-      conversationId: params.id,
+      conversationId: (await params).id,
     });
 
     await message.save();
@@ -160,7 +160,7 @@ export async function POST(
         email: message.senderId.email,
       },
       conversationId: message.conversationId.toString(),
-      readBy: message.readBy.map(id => id.toString()),
+      readBy: message.readBy.map((id: any) => id.toString()),
       createdAt: message.createdAt,
       updatedAt: message.updatedAt,
       isEdited: message.isEdited,
@@ -171,11 +171,11 @@ export async function POST(
       { status: 201 }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Send message error:', error);
-    
-    if (error.errors) {
-      const validationErrors = Object.values(error.errors).map((err: any) => err.message);
+
+    if (error && typeof error === 'object' && 'errors' in error && error.errors) {
+      const validationErrors = Object.values(error.errors as Record<string, { message: string }>).map((err) => err.message);
       return NextResponse.json(
         { error: validationErrors.join(', ') },
         { status: 400 }

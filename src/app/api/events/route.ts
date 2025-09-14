@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Event from '@/models/Event';
-import EventAttendance from '@/models/EventAttendance';
+// import EventAttendance from '@/models/EventAttendance';
 import GroupMembership from '@/models/GroupMembership';
 import { authenticateUser } from '@/middleware/auth';
 
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10');
     const skip = (page - 1) * limit;
 
-    let query: any = {};
+    const query: Record<string, unknown> = {};
     
     if (groupId) {
       query.groupId = groupId;
@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
       totalPages: Math.ceil(total / limit),
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get events error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -221,11 +221,11 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Create event error:', error);
     
-    if (error.errors) {
-      const validationErrors = Object.values(error.errors).map((err: any) => err.message);
+    if (error && typeof error === 'object' && 'errors' in error && error.errors) {
+      const validationErrors = Object.values(error.errors as Record<string, { message: string }>).map((err) => err.message);
       return NextResponse.json(
         { error: validationErrors.join(', ') },
         { status: 400 }

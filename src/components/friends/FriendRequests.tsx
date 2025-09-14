@@ -32,10 +32,10 @@ export default function FriendRequests() {
           ? `You are now friends with ${requesterName}` 
           : `You declined ${requesterName}'s friend request`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'An error occurred',
         variant: 'destructive',
       });
     } finally {
@@ -51,10 +51,10 @@ export default function FriendRequests() {
         title: 'Friend request cancelled',
         description: `Your friend request to ${recipientName} has been cancelled`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'An error occurred',
         variant: 'destructive',
       });
     } finally {

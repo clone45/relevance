@@ -96,7 +96,7 @@ export function MessageList({ conversation }: MessageListProps) {
       <Card className="h-full">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">
-            {conversation.otherParticipant?.name || 'Loading...'}
+{conversation.participants.length > 0 ? conversation.participants[0].name : 'Loading...'}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -122,18 +122,18 @@ export function MessageList({ conversation }: MessageListProps) {
         <div className="flex items-center space-x-3">
           <Avatar className="h-10 w-10">
             <AvatarFallback className="bg-gray-500 text-white">
-              {conversation.otherParticipant ? 
-                getInitials(conversation.otherParticipant.name) : 
+              {conversation.participants.length > 0 ?
+                getInitials(conversation.participants[0].name) :
                 '?'
               }
             </AvatarFallback>
           </Avatar>
           <div>
             <CardTitle className="text-lg">
-              {conversation.otherParticipant?.name || 'Unknown User'}
+{conversation.participants.length > 0 ? conversation.participants[0].name : 'Unknown User'}
             </CardTitle>
             <p className="text-sm text-gray-600">
-              {conversation.otherParticipant?.email}
+{conversation.participants.length > 0 ? conversation.participants[0].email : ''}
             </p>
           </div>
         </div>

@@ -38,7 +38,7 @@ export function useMessages(): UseMessagesReturn {
       const result: ConversationListResponse = await response.json();
 
       if (!response.ok) {
-        setError(result.error || 'Failed to fetch conversations');
+        setError("Failed to fetch conversations");
         return;
       }
 
@@ -67,7 +67,7 @@ export function useMessages(): UseMessagesReturn {
       const result: MessageListResponse = await response.json();
 
       if (!response.ok) {
-        setError(result.error || 'Failed to fetch messages');
+        setError("Failed to fetch messages");
         return;
       }
 
